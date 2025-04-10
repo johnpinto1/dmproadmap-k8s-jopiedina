@@ -1,0 +1,39 @@
+
+minikube start --driver=virtualbox
+
+
+
+kubectl create secret generic dmproadmap-secrets \
+  --from-literal=DB_USERNAME=postgres \
+  --from-literal=DB_PASSWORD=roadmap\
+  --from-literal=RAILS_MASTER_KEY=c46dc1c1e9c61df391c13f3af8b90d68  
+  
+  kubectl get secrets dmproadmap-secrets
+ kubectl edit secrets dmproadmap-secrets
+echo "cm9hZG1hcA==" | base64 --decode
+
+
+kubectl apply -f dmproadmap-postgres-pvc.yml
+
+k get pvc
+kubectl apply -f dmproadmap-postgres-deploy.yml
+k get deployments
+k get pods
+
+ 
+k describe pod dmproadmap-postgres-64848cdd4f-2gj8r
+k describe pvc dmproadmap-postgres
+k get deployments
+k describe deployments dmproadmap-postgres                     
+
+k get pvc
+k describe pvc postgres-pvc
+
+k apply -f dmproadmap-postgres-deploy.yml
+k get deployments
+k describe  deployments dmproadmap-postgres
+
+
+k apply -f dmproadmap-postgres-svc.yml     
+k get svc
+k describe svc dmproadmap-postgres

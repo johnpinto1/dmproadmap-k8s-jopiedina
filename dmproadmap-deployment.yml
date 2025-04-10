@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dmproadmap
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: dmproadmap
+  template:
+    metadata:
+      labels:
+        app: dmproadmap
+    spec:
+      containers:
+        - name: dmproadmap
+          image: jopiedina/k8s-dmproadmap:latest # Replace with your Docker image
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: dmproadmap-config
+          env:
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: dmproadmap-secrets
+                  key: DB_USERNAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: dmproadmap-secrets
+                  key: DB_PASSWORD
+            - name: RAILS_MASTER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: dmproadmap-secrets
+                  key: RAILS_MASTER_KEY
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: '512Mi'
+              cpu: '250m'
+            limits:
+              memory: '1Gi'
+              cpu: '500m'
