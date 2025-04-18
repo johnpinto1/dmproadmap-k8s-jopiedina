@@ -44,8 +44,20 @@ spec:
             periodSeconds: 10
           resources:
             requests:
-              memory: '512Mi'
+              memory: '1Gi'
               cpu: '250m'
             limits:
-              memory: '1Gi'
+              memory: '2Gi'
               cpu: '500m'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dmproadmap
+spec:
+  selector:
+    app: dmproadmap
+  ports:
+    - port: 80
+      targetPort: 3000
+  type: ClusterIP
