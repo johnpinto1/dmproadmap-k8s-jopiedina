@@ -59,8 +59,40 @@ COPY  config/database.yml.sample  config/database.yml
 COPY  config/initializers/contact_us.rb.example config/initializers/contact_us.rb
 COPY  config/initializers/wicked_pdf.rb.example config/initializers/wicked_pdf.rb
 
+# First, copy the original file to a new location
+COPY app/views/home/_welcome.html.erb /tmp/_welcome.html.erb
+
 # Copy application code
 COPY . .
+# Replace the contents of the file with the new content
+RUN echo '<% title _("Welcome to #{ApplicationService.application_name}.") %>' > ./app/views/home/_welcome.html.erb && \
+    echo '<div>' >> ./app/views/home/_welcome.html.erb && \
+    echo '  <h1><%= _("Welcome to #{ApplicationService.application_name}.")%></h1>' >> ./app/views/home/_welcome.html.erb && \
+    echo '  <p>' >> ./app/views/home/_welcome.html.erb && \
+    echo '    <%= sanitize _('\''<p>%{application_name} has been developed by the <strong>%{organisation_name}</strong> to help you write data management plans.</p>'\'') % {' >> ./app/views/home/_welcome.html.erb && \
+    echo '      application_name: ApplicationService.application_name,' >> ./app/views/home/_welcome.html.erb && \
+    echo '      organisation_name: Rails.configuration.x.organisation.name}' >> ./app/views/home/_welcome.html.erb && \
+    echo '      %>' >> ./app/views/home/_welcome.html.erb && \
+    echo '' >> ./app/views/home/_welcome.html.erb && \
+    echo '    <label for="linklist">' >> ./app/views/home/_welcome.html.erb && \
+    echo '      <%=_('\''Getting started:'\'')%>' >> ./app/views/home/_welcome.html.erb && \
+    echo '    </label>' >> ./app/views/home/_welcome.html.erb && \
+    echo '    <ul id="linklist">' >> ./app/views/home/_welcome.html.erb && \
+    echo '      <% Rails.configuration.x.application.welcome_links.each do |wlink| %>' >> ./app/views/home/_welcome.html.erb && \
+    echo '      <li><a href="<%= wlink[:url] %>"><%= wlink[:title] %></a></li>' >> ./app/views/home/_welcome.html.erb && \
+    echo '      <% end %>' >> ./app/views/home/_welcome.html.erb && \
+    echo '    </ul>' >> ./app/views/home/_welcome.html.erb && \
+    echo '    <p>' >> ./app/views/home/_welcome.html.erb && \
+    echo '        <label>The test user accounts below all have the password: password123</label>' >> ./app/views/home/_welcome.html.erb && \
+    echo '        <ul>' >> ./app/views/home/_welcome.html.erb && \
+    echo '         <li>Demo Super Administrator = super_admin@example.com</li>' >> ./app/views/home/_welcome.html.erb && \
+    echo '         <li>Demo Funder Administrator = funder_admin@example.com</li>' >> ./app/views/home/_welcome.html.erb && \
+    echo '         <li>Demo Organisation Administrator = org_admin@example.com</li>' >> ./app/views/home/_welcome.html.erb && \
+    echo '         <li>Demo Organisation User = org_user@example.com</li>' >> ./app/views/home/_welcome.html.erb && \
+    echo '        </ul>' >> ./app/views/home/_welcome.html.erb && \
+    echo '    </p>' >> ./app/views/home/_welcome.html.erb && \
+    echo '  </p>' >> ./app/views/home/_welcome.html.erb && \
+    echo '</div>' >> ./app/views/home/_welcome.html.erb
 
 # Create a dummy database.yml for asset compilation
 RUN echo "development:\n  adapter: nulldb\n  pool: 5\n  timeout: 5000" > config/database.yml
@@ -107,6 +139,7 @@ EXPOSE 3000
 
 # Add gem binaries to PATH - use a simpler, more reliable approach
 ENV PATH="/usr/local/bundle/bin:/usr/local/bin:${PATH}"
+
 
 # Start the server
 CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]

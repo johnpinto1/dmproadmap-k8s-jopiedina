@@ -68,3 +68,15 @@ Bypass the Ingress to test if the application is working:
 kubectl port-forward $(kubectl get pods -l app=dmproadmap -o jsonpath="{.items[0].metadata.name}") 3000:3000
 
 Then try accessing http://localhost:3000 in your browser.
+
+
+#### Test Useers
+The test user accounts below all have the password: password123
+
+Demo Super Administrator = super_admin@example.com
+
+Demo Funder Administrator = funder_admin@example.com
+
+Demo Organisation Administrator = org_admin@example.com
+
+Demo Organisation User = org_user@example.com
