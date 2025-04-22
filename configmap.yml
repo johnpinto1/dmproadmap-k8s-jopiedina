@@ -9,7 +9,7 @@ data:
   RAILS_MAX_THREADS: '5'
   WEB_CONCURRENCY: '2'
   PORT: '3000'
-  DMPROADMAP_HOST: 'localhost' # Change this to your actual domain
+  DMPROADMAP_HOST: 'dmproadmap.local' # Change this to your actual domain
   WICKED_PDF_PATH: '/usr/local/bin/wkhtmltopdf'
   DB_ADAPTER: 'postgresql'
   DB_HOST: 'dmproadmap-postgres' # This will be your PostgreSQL service name

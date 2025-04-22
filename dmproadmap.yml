@@ -36,12 +36,14 @@ spec:
                 secretKeyRef:
                   name: dmproadmap-secrets
                   key: RAILS_MASTER_KEY
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: 3000
-            initialDelaySeconds: 30
-            periodSeconds: 10
+            - name: DMPROADMAP_HOST
+              value: 'dmproadmap.local'
+          # readinessProbe:
+          #   httpGet:
+          #     path: /health
+          #     port: 3000
+          #   initialDelaySeconds: 30
+          #   periodSeconds: 10
           resources:
             requests:
               memory: '1Gi'

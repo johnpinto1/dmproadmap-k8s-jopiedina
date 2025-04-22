@@ -54,20 +54,59 @@ RUN gem install bundler && bundle config set without 'mysql thin' && bundle inst
 COPY package.json yarn.lock ./
 RUN yarn install
 
+
 COPY  config/database.yml.sample  config/database.yml
 COPY  config/initializers/contact_us.rb.example config/initializers/contact_us.rb
 COPY  config/initializers/wicked_pdf.rb.example config/initializers/wicked_pdf.rb
 
-# Precompile assets
-RUN RAILS_ENV=production SECRET_KEY_BASE=57d06d315e922b1804c81c204169bbbab77177312d3ef2f4e53464a6da5784953bbd6d7143f5eb87d05bfd63baccc3067f95390c9a46da05c34aa45db2ff1c15 \
- bundle exec rails assets:precompile
-
 # Copy application code
 COPY . .
+
+# Create a dummy database.yml for asset compilation
+RUN echo "development:\n  adapter: nulldb\n  pool: 5\n  timeout: 5000" > config/database.yml
+
+# Install the nulldb adapter for asset compilation without a database
+RUN bundle add activerecord-nulldb-adapter --group production
+
+# Precompile assets
+  
+#   DISABLE_DATABASE=true - This environment variable tells the Rails application to skip database connections during the asset precompilation process. This is important because:
+  
+#   During Docker build, there's typically no database server available
+#   Asset precompilation doesn't inherently need database access
+#   Setting this prevents errors related to failed database connections
+#   DISABLE_SPRING=true - This environment variable disables the Spring application preloader. Spring is a Rails development tool that speeds up application boot time by keeping your application running in the background, but:
+  
+#   It's not needed during Docker builds
+#   It can cause connection errors in containerized environments
+#   It's primarily meant for development, not for production builds
+#   bundle exec rails assets:precompile - This command:
+  
+#   Uses Bundler to ensure the correct gem versions are used
+#   Runs the Rails asset pipeline to compile and minify assets (JavaScript, CSS, images)
+#   Prepares assets for production deployment by optimizing them
+#   This line is a best practice for Docker builds of Rails applications because it:
+  
+#   Avoids unnecessary database connections during build
+#   Prevents Spring-related errors
+#   Ensures assets are properly compiled for production use
+#   Makes the Docker build process more reliable by eliminating common points of failure
+#   The compiled assets will be stored in the public/assets directory within the container, ready to be served efficiently in production.
+
+# Precompile assets with database connections disabled
+RUN DISABLE_DATABASE=true DISABLE_SPRING=true bundle exec rails assets:precompile
+RUN DISABLE_DATABASE=true DISABLE_SPRING=true yarn build
+RUN DISABLE_DATABASE=true DISABLE_SPRING=true yarn build:css
+
+# Restore the original database.yml
+COPY config/database.yml.sample config/database.yml
 
 
 # expose correct port
 EXPOSE 3000
+
+# Add gem binaries to PATH - use a simpler, more reliable approach
+ENV PATH="/usr/local/bundle/bin:/usr/local/bin:${PATH}"
 
 # Start the server
 CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]
