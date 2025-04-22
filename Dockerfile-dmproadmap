@@ -1,3 +1,7 @@
+# Command to build:
+# docker build . -t jopiedina/k8s-dmproadmap:latest -f Dockerfile-dmproadmap
+# docker push jopiedina/k8s-dmproadmap:latest
+
 FROM ruby:3.3.2
 
 # Install dependencies

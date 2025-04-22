@@ -23,7 +23,7 @@ spec:
                   name: dmproadmap-secrets
                   key: DB_PASSWORD
             - name: POSTGRES_DB
-              value: roadmap
+              value: postgres
           ports:
             - containerPort: 5432
           volumeMounts:
@@ -33,3 +33,26 @@ spec:
         - name: postgres-data
           persistentVolumeClaim:
             claimName: postgres-pvc
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dmproadmap-postgres
+spec:
+  ports:
+    - port: 5432
+  selector:
+    app: dmproadmap-postgres
